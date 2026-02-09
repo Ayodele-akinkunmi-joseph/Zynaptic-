@@ -5,7 +5,7 @@ import { Box, BookOpen, Terminal, Cpu, Database, Smartphone, Cloud, Zap, Code, L
 const About = () => {
   return (
     <section id="about" className="min-h-screen pt-32 px-4 sm:px-6 md:px-12 lg:px-20 relative overflow-hidden">
-      
+      f50
       {/* Dark Background - NO WHITE */}
       <div className="absolute inset-0 -z-10 bg-black">
         {/* Subtle grid */}
@@ -127,7 +127,7 @@ const About = () => {
               {/* Quick Stats */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="backdrop-blur-sm bg-black/40 border border-white/10 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-white mb-1">50+</div>
+                  <div className="text-2xl font-bold text-white mb-1">10+</div>
                   <div className="text-xs text-gray-400">Projects</div>
                 </div>
                 <div className="backdrop-blur-sm bg-black/40 border border-white/10 rounded-xl p-4 text-center">
