@@ -11,11 +11,41 @@ const Ping = () => {
     message: "",
   });
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    alert("Message sent! I'll get back to you soon.");
-    setFormData({ name: "", email: "", subject: "", message: "", });
+    setIsSubmitting(true);
+    
+    // Create form data for Netlify
+    const formDataToSend = new FormData();
+    formDataToSend.append('form-name', 'contact');
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('subject', formData.subject);
+    formDataToSend.append('message', formData.message);
+    
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formDataToSend).toString()
+      });
+      
+      if (response.ok) {
+        setSubmitStatus('success');
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setTimeout(() => setSubmitStatus(null), 5000);
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactMethods = [
@@ -25,7 +55,7 @@ const Ping = () => {
       icon: <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-white" />, 
       color: "cyan",
       response: "Within 24 hours",
-      link: "mailto:jakinorymnexus@gmail.com "
+      link: "mailto:jakinorymnexus@gmail.com"
     },
     { 
       type: "GitHub", 
@@ -94,14 +124,23 @@ const Ping = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 px-2 sm:px-4">
           
-          {/* Contact Form */}
+          {/* Contact Form - Netlify Form */}
           <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-7 xl:p-8 border border-white/10">
             <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5 md:mb-6 lg:mb-7 xl:mb-8">
               <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full animate-pulse"></div>
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">SEND_MESSAGE</h2>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6">
+            {/* Netlify Form - Added hidden form-name field */}
+            <form 
+              name="contact" 
+              method="POST" 
+              data-netlify="true" 
+              onSubmit={handleSubmit}
+              className="space-y-4 sm:space-y-5 md:space-y-6"
+            >
+              <input type="hidden" name="form-name" value="contact" />
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 <div className="space-y-1 sm:space-y-2">
                   <label className="text-xs sm:text-sm text-gray-400 font-mono flex items-center gap-1 sm:gap-2">
@@ -110,6 +149,7 @@ const Ping = () => {
                   </label>
                   <input
                     type="text"
+                    name="name"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -125,6 +165,7 @@ const Ping = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -141,6 +182,7 @@ const Ping = () => {
                 </label>
                 <input
                   type="text"
+                  name="subject"
                   required
                   value={formData.subject}
                   onChange={(e) => setFormData({...formData, subject: e.target.value})}
@@ -149,43 +191,13 @@ const Ping = () => {
                 />
               </div>
               
-              {/* <div className="space-y-1 sm:space-y-2">
-                <label className="text-xs sm:text-sm text-gray-400 font-mono flex items-center gap-1 sm:gap-2">
-                  <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                  PRIORITY_LEVEL
-                </label>
-                <div className="flex flex-wrap gap-2 sm:gap-3">
-                  {[
-                    { value: "low", label: "Low", color: "green" },
-                    { value: "normal", label: "Normal", color: "cyan" },
-                    { value: "high", label: "High", color: "orange" },
-                    { value: "urgent", label: "Urgent", color: "red" }
-                  ].map((level) => (
-                    <button
-                      key={level.value}
-                      type="button"
-                      onClick={() => setFormData({...formData, priority: level.value})}
-                      className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm font-mono transition-all flex items-center gap-1 sm:gap-2 ${
-                        formData.priority === level.value
-                          ? `bg-${level.color}-500/20 border-${level.color}-500 text-${level.color}-400`
-                          : 'bg-black/30 border-white/20 text-gray-400 hover:border-cyan-400/50'
-                      }`}
-                    >
-                      {formData.priority === level.value && (
-                        <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-${level.color}-400 animate-pulse`}></div>
-                      )}
-                      {level.label}
-                    </button>
-                  ))}
-                </div>
-              </div> */}
-              
               <div className="space-y-1 sm:space-y-2">
                 <label className="text-xs sm:text-sm text-gray-400 font-mono flex items-center gap-1 sm:gap-2">
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   MESSAGE
                 </label>
                 <textarea
+                  name="message"
                   required
                   rows={4}
                   value={formData.message}
@@ -195,17 +207,35 @@ const Ping = () => {
                 />
               </div>
               
+              {/* Status Message */}
+              {submitStatus === 'success' && (
+                <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm text-center">
+                  ✓ Message sent! I'll get back to you soon.
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm text-center">
+                  ✗ Something went wrong. Please try again or email directly.
+                </div>
+              )}
+              
               <button
                 type="submit"
-                className="w-full py-3 sm:py-3.5 md:py-4 bg-cyan-500 text-white font-bold rounded-lg sm:rounded-xl hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 sm:gap-3 group"
+                disabled={isSubmitting}
+                className={`w-full py-3 sm:py-3.5 md:py-4 bg-cyan-500 text-white font-bold rounded-lg sm:rounded-xl hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 sm:gap-3 group ${
+                  isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
                 <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:translate-x-1 transition-transform" />
-                <span className="text-sm sm:text-base">SEND_PING</span>
+                <span className="text-sm sm:text-base">
+                  {isSubmitting ? 'SENDING...' : 'SEND_PING'}
+                </span>
               </button>
             </form>
           </div>
 
-          {/* Contact Info Sidebar */}
+          {/* Contact Info Sidebar - Rest remains the same */}
           <div className="space-y-4 sm:space-y-5 md:space-y-6">
             {/* Contact Channels */}
             <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-7 xl:p-8 border border-white/10">
@@ -241,33 +271,6 @@ const Ping = () => {
                 ))}
               </div>
             </div>
-
-            {/* Response Timeline
-            <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-7 xl:p-8 border border-white/10">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5 md:mb-6">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-orange-500 rounded-full animate-pulse"></div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white flex items-center gap-1 sm:gap-2">
-                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                  RESPONSE_TIMELINE
-                </h2>
-              </div>
-              
-              <div className="space-y-3 sm:space-y-4">
-                {[
-                  { priority: "Normal Priority", time: "24-48 hours", color: "cyan" },
-                  { priority: "High Priority", time: "12-24 hours", color: "orange" },
-                  { priority: "Urgent", time: "2-6 hours", color: "red" }
-                ].map((item) => (
-                  <div key={item.priority} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 backdrop-blur-sm bg-black/30 border border-white/10 rounded-lg sm:rounded-xl hover:border-cyan-400/30 transition-all gap-2 sm:gap-0">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-${item.color}-500 animate-pulse`}></div>
-                      <span className="text-sm sm:text-base text-gray-300">{item.priority}</span>
-                    </div>
-                    <span className={`text-${item.color}-400 font-mono font-bold text-sm sm:text-base`}>{item.time}</span>
-                  </div>
-                ))}
-              </div>
-            </div> */}
 
             {/* Current Status */}
             <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-7 xl:p-8 border border-white/10">
