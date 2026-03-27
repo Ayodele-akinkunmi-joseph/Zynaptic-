@@ -75,7 +75,7 @@ const About = () => {
                     {/* Image with inner glow */}
                     <div className="relative rounded-full overflow-hidden">
                       <img 
-                        src="/profile.png" 
+                        src="/profile2.jpeg" 
                         alt="Profile" 
                         className="w-48 h-48 md:w-56 md:h-56 rounded-full object-cover border-2 border-cyan-400/30 shadow-2xl mx-auto"
                       />
